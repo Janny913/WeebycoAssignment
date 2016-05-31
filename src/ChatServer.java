@@ -12,6 +12,6 @@ public abstract class ChatServer {
     protected abstract void createThread() throws IOException;
     protected abstract void userCommand(String username, InputStream in, OutputStream out, Socket sock) throws IOException;
     protected abstract String getUserName(InputStream in, OutputStream out, Socket sock) throws IOException;
-    protected abstract void handleClient(Socket sock);
-
+    public abstract void handleClient(Socket sock);
+    protected abstract void quit(String username, OutputStream out);
 }
