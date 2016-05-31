@@ -1,1 +1,15 @@
 This is my Chat Server Java Source Code for the Weeby.co application.
+
+Please Use command "telnet 54.183.164.84 8080" from terminal to access the Chat Room
+
+Enjoy your chatting time!
+
+To compile and run the server locally, please follow the below steps:
+
+1. Download jdk 1.7 or above from oracle.
+2. Install jdk, please refer the related documentation.
+3. Change your current directory to the one contains the *.java files.
+4. Run command "javac WeebyChatServer.java".
+5. Run command "java WeebyChatServer" to use Default 8080 port.
+6. Or run command "java WeebyChatServer port#" to indicate the port # you want to use.
+7. To terminate the application, use Ctrl + C.

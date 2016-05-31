@@ -16,30 +16,26 @@ public class WeebyChatServer extends ChatServer {
 
     //Since it's a little tricky to design the Arrow, Here I used ">>" in general.
 
-    private Lock lockSocks; // for the list of sockets
-    private Lock lockChatrooms; // for the list of people in each chatroom
-    private HashMap<String,Socket> socks; // list of sockets for the chatroom
-    private HashMap<String, HashSet<String>> chatrooms; // chatroom and chatroom members
+    private Lock lockSocks; // List of sockets
+    private Lock lockChatrooms; // List of people in each chat room
+    private HashMap<String,Socket> socks; // List of sockets for the chatroom
+    private HashMap<String, HashSet<String>> chatrooms; // chat room and chat room members
     private ServerSocket server_sock;
     private boolean nameChangeFailed;
 
-    public WeebyChatServer(int port){
+    // Constructor of the Weeby Chat Server
+
+    public WeebyChatServer(){
         lockSocks = new ReentrantLock();
         lockChatrooms = new ReentrantLock();
-        socks = new HashMap<String, Socket>();
-        chatrooms = new HashMap<String, HashSet<String>>();
+        socks = new HashMap<>();
+        chatrooms = new HashMap<>();
         nameChangeFailed = false;
 
-        chatrooms.put("Main Room", new HashSet<String>());
-
-        bind(port);
-        try{
-            createThread();
-        }
-        catch (IOException exception){
-            System.err.println("Error when create thread for the new client");
-        }
+        chatrooms.put("Main Room", new HashSet<>());
     }
+
+    //Create the socket
 
     protected void bind(int port){
         try{
@@ -66,7 +62,7 @@ public class WeebyChatServer extends ChatServer {
                     t.start();
                 }
                 catch (IOException exception){
-                    System.err.println("Error accepting Connection!");
+                    System.err.println("Error when accepting Connection!");
                     continue;
                 }
             }
@@ -92,7 +88,7 @@ public class WeebyChatServer extends ChatServer {
         }
 
         String userName = "";
-        boolean loop = false;
+        boolean loop;
 
         while ((len = in.read(data)) != -1){
             userName = new String(data, 0, len-2);
@@ -219,7 +215,7 @@ public class WeebyChatServer extends ChatServer {
         return sb.toString();
     }
 
-    public void handleClient(Socket sock){
+    protected void handleClient(Socket sock){
         InputStream in = null;
         OutputStream out = null;
         try {
@@ -248,7 +244,7 @@ public class WeebyChatServer extends ChatServer {
 
         String roomName = getRestofCommand(command);
         lockChatrooms.lock();
-        chatrooms.put(roomName, new HashSet<String>());
+        chatrooms.put(roomName, new HashSet<>());
         lockChatrooms.unlock();
 
         String created = SERVER_ARROW + roomName + " created successfully!\n";
@@ -336,7 +332,7 @@ public class WeebyChatServer extends ChatServer {
 
         //tell room members, there's new member entered.
         String message = "Entering room: " + username + "\n";
-        sendMessage(roomName, message, username);
+        sendMessage(roomName, message);
         StringBuilder users = new StringBuilder();
         users.append("Current users: \n");
         Socket s;
@@ -415,7 +411,7 @@ public class WeebyChatServer extends ChatServer {
             }
             else {
                 out.write(SERVER_ARROW.getBytes());
-                sendMessage(roomName,username + ": " + message, username);
+                sendMessage(roomName,username + ": " + message);
                 needArrow = false;
             }
 
@@ -441,7 +437,7 @@ public class WeebyChatServer extends ChatServer {
         return 0;
     }
 
-    private void sendMessage(String roomName, String message, String username){
+    private void sendMessage(String roomName, String message){
         byte[] m = (message + SERVER_ARROW).getBytes();
         OutputStream out;
         Socket s;
@@ -566,7 +562,6 @@ public class WeebyChatServer extends ChatServer {
         catch (IOException exception){
             System.err.println("Error when closing " + username + " socket!");
         }
-        return;
     }
 
     public static void main(String[] arg){
@@ -586,13 +581,21 @@ public class WeebyChatServer extends ChatServer {
             }
         }
 
-        ChatServer myServer = new WeebyChatServer(port);
+        ChatServer myServer = new WeebyChatServer();
+
+        myServer.bind(port);
+        try{
+            myServer.createThread();
+        }
+        catch (IOException exception){
+            System.err.println("Error when create thread for the new client");
+        }
     }
 
-    public class handleRequests implements Runnable{
+    private class handleRequests implements Runnable{
         Socket socket;
 
-        public handleRequests(Socket socket){
+        private handleRequests(Socket socket){
             this.socket = socket;
         }
 
